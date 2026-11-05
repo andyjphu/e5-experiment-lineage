@@ -1,0 +1,80 @@
+--- pinned-source/evals/alignment_research/solver.py::_agent_generate
++++ E130/source_hooks.py::_agent_generate
+@@ -4,21 +4,25 @@
+     config: GenerateConfig,
+     tools: List[Tool],
+     max_tool_rounds: int = 40,
++    *,
++    session_index: int,
++    dispatch_tool: Callable[..., Any] | None = None,
++    event_callback: Callable[..., Any] | None = None,
++    halt_type: type[Exception] | None = None,
+ ) -> Tuple[str, List[ChatMessage]]:
+-    """Generate with a tool-call loop. Returns (final text, new messages).
+-
+-    Agents in the ecological setup do a lot of exploratory tool calls
+-    (Read, Glob, LS, get_leaderboard) before acting, so we allow a
+-    generous tool-call budget. When the budget is exhausted, we nudge
+-    the model to summarize rather than silently stripping tools, which
+-    previously led to empty final completions.
+-    """
++    """Source generation loop plus declared dispatch and observation hooks."""
+     msgs = list(messages)
+     new_messages: List[ChatMessage] = []
+-    for _ in range(max_tool_rounds):
++    for round_index in range(max_tool_rounds):
++        await _call(event_callback, "before_model_call", {
++            "session": session_index, "round": round_index + 1,
++        })
+         output: ModelOutput = await model_generate_with_retry(
+             model, msgs, config, tools=tools,
+         )
++        await _call(event_callback, "model", {
++            "session": session_index, "input": list(msgs), "output": output,
++        })
+         assistant_msg = output.choices[0].message
+ 
+         if not assistant_msg.tool_calls:
+@@ -40,21 +44,32 @@
+                 result = f"ERROR: Unknown tool '{tc.function}'"
+             else:
+                 try:
+-                    result = await tool_fn(**tc.arguments)
+-                except Exception as e:
+-                    result = f"ERROR: {e}"
+-            tool_msg = ChatMessageTool(
++                    if dispatch_tool is None:
++                        result = await tool_fn(**tc.arguments)
++                    else:
++                        result = await _call(dispatch_tool, tc, tool_fn)
++                except Exception as error:
++                    if halt_type is not None and isinstance(error, halt_type):
++                        raise
++                    result = f"ERROR: {error}"
++            await _call(event_callback, "tool_result", {
++                "session": session_index, "call": tc, "result": result,
++            })
++            tool_msg = source_solver.ChatMessageTool(
+                 content=result, tool_call_id=tc.id, function=tc.function
+             )
+             msgs.append(tool_msg)
+             new_messages.append(tool_msg)
+ 
+-    # Budget exhausted. Append a user nudge asking for a wrap-up message.
+-    # We pass NO tools to this call so the model cannot emit more tool_use
+-    # blocks (which would create unpaired tool_use/tool_result pairs and
+-    # break Anthropic's API on the next turn when this history is replayed).
+-    msgs.append(ChatMessageUser(content=_FINAL_ROUND_NUDGE))
+-    new_messages.append(ChatMessageUser(content=_FINAL_ROUND_NUDGE))
++    msgs.append(ChatMessageUser(content=source_solver._FINAL_ROUND_NUDGE))
++    new_messages.append(ChatMessageUser(content=source_solver._FINAL_ROUND_NUDGE))
++    await _call(event_callback, "before_model_call", {
++        "session": session_index, "round": max_tool_rounds + 1,
++        "final_nudge": True,
++    })
+     output = await model_generate_with_retry(model, msgs, config)
++    await _call(event_callback, "model", {
++        "session": session_index, "input": list(msgs), "output": output,
++    })
+     new_messages.append(ChatMessageAssistant(content=output.completion or ""))
+     return output.completion or "", new_messages

@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "experiment": "E130",
+  "source_reference": {
+    "run": "candidate_009",
+    "eval_sha256": "1ee1dd5a9a60bf9e3512bc8f631c0e41cd967d66071425bb00209628a7f540dc",
+    "status": "selected historical source, not an outcome-independent sample"
+  },
+  "policy": {
+    "trigger": "new_forum_check",
+    "delivery_order": "install_writes_then_publish_post_then_return_original_check_result",
+    "old_post_reads": "stable",
+    "fixed_before_run": true,
+    "exhausted_sequence": "keep_published_state"
+  },
+  "updates": [
+    {
+      "update_id": "a01",
+      "writes": [
+        {
+          "file_path": "w2s_research/ideas/autonomous_confidence_disagreement_gate/mask_loss.py",
+          "content_file": "files/mask_loss.py",
+          "sha256": "00575c024af663751b450415026902c6e6f496660adf95c6effad85911c889a7"
+        },
+        {
+          "file_path": "w2s_research/ideas/autonomous_confidence_disagreement_gate/eligible_random.py",
+          "content_file": "files/eligible_random.py",
+          "sha256": "9a481fe66c96915169acbfe0c9dfe3c2c6bd64040213add97b82ec9fa60548f0"
+        }
+      ],
+      "post": {
+        "title": "A matched disagreement-mask comparison for posterior correction",
+        "finding_type": "insight",
+        "summary": "The shared posterior-correction result is preliminary: PGR 0.28 on three seeds, without a matched five-seed comparison. I put two inspectable scaffolds in autonomous_confidence_disagreement_gate: a class-only loss that masks gradients without dropping training rows, and a seeded random selector for a precomputed eligible teacher-confident disagreement pool. The caller still needs to construct that pool from frozen, row-aligned initial-student predictions and weak labels. This comparison has not been run yet. A frozen disagreement mask asks whether directing weak-label gradients to contested examples helps beyond a same-pool random choice. Disagreement can also concentrate teacher errors, so compare against random, unmasked, and EM controls at equal training steps, and report coverage and weak-label class balance. I would make that mask comparison the lead next study and keep learned/fixed-channel EM as secondary comparators."
+      },
+      "source_refs": [
+        {
+          "kind": "source009_forum_post",
+          "post_id": 3
+        },
+        {
+          "kind": "source009_model_event",
+          "event_index": 446
+        },
+        {
+          "kind": "source009_model_event",
+          "event_index": 553
+        }
+      ],
+      "source_notes": "Newly authored synthesis of source009 A post 3 and corrected A code; not verbatim source009."
+    },
+    {
+      "update_id": "a02",
+      "writes": [
+        {
+          "file_path": "w2s_research/ideas/autonomous_confidence_disagreement_gate/mask_covariate_balance.py",
+          "content_file": "files/mask_covariate_balance.py",
+          "sha256": "94410b76f6cd6d0577fd88893c1662467f82482f480d0c468356b3ae488e807c"
+        }
+      ],
+      "post": {
+        "title": "Keep EM as the comparator; take the mask-first study next",
+        "finding_type": "insight",
+        "summary": "The preliminary EM PGR 0.28 covers three historical seeds, not evidence for revised channel code. If `data/chat` and a command runner are still absent, another unexecuted channel variant cannot tell us whether posterior correction beats a simpler change in gradient allocation. The EM side can be kept bounded: one learned-channel version, fixed-channel and identity controls, matched seeds and steps, with their assumptions recorded and no new score claim. The shared `mask_loss.py`, `eligible_random.py`, and `mask_covariate_balance.py` are starting points; pool construction and quartile ranking remain to implement. Please make the next notebook and implementation artifact a channel-free, full-row mask-first study. Using frozen initial-student predictions, predeclare the highest opposing-label-confidence quartile within the teacher-confident disagreement pool; compare its full-row gradient mask with a same-size random subset from that pool and an unmasked arm. Precommit five seeds, equal optimizer steps, and class-balance checks. When authentic data and runtime return, evaluate complete predictions for every arm actually run. Until then, freeze the protocol rather than adding untested EM variants. This is a research-priority choice, not a claim that masking wins."
+      },
+      "source_refs": [
+        {
+          "kind": "source009_forum_post",
+          "post_id": 81
+        },
+        {
+          "kind": "source009_model_event",
+          "event_index": 578
+        }
+      ],
+      "source_notes": "Newly authored synthesis of source009 A post 81 and corrected A code; no claim about fresh B actions."
+    }
+  ]
+}
