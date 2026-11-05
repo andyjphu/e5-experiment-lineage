@@ -26,7 +26,10 @@ from evals.common.retry_utils import GenerationError
 from adapter import DeliveryHalt, FixedADelivery, load_manifest
 from launcher import _session_gate, _technical_failure, run_attempt
 import source_hooks
-from source_hooks import _agent_generate, make_b_solver
+from source_hooks import (
+    BASELINE_GOAL_SENTENCE, REPLACEMENT_GOAL_SENTENCE,
+    _agent_generate, make_b_solver, transform_b_system_prompt,
+)
 
 
 class OneToolModel:
@@ -123,6 +126,18 @@ def check_classification() -> None:
     assert _technical_failure(log, sample)
 
 
+def check_goal_sentence_guard() -> None:
+    for rendered, count in (("no B goal sentence", 0),
+                            (BASELINE_GOAL_SENTENCE * 2, 2)):
+        try:
+            transform_b_system_prompt(rendered)
+        except ValueError as error:
+            assert f"found {count}" in str(error)
+        else:
+            raise AssertionError("invalid B goal count was accepted")
+    assert transform_b_system_prompt(BASELINE_GOAL_SENTENCE) == REPLACEMENT_GOAL_SENTENCE
+
+
 def check_generation_error_eval(attempt: Path, package: Path) -> None:
     root = attempt / "w2s"
     os.environ["W2S_REPO_ROOT"] = str(root)
@@ -178,6 +193,7 @@ def main() -> None:
     package = Path(sys.argv[3]).resolve(strict=True)
     check_frozen_guard(attempt)
     check_classification()
+    check_goal_sentence_guard()
     asyncio.run(check_dispatch_halt())
     asyncio.run(check_pre_model_stop())
     with tempfile.TemporaryDirectory(prefix="e130_gate_failure_") as directory:
@@ -185,7 +201,7 @@ def main() -> None:
     check_generation_error_eval(generation_attempt, package)
     print(json.dumps({
         "status": "offline_failure_paths_green",
-        "checks": ["frozen_guard", "technical_classification", "dispatch_halt",
+        "checks": ["frozen_guard", "technical_classification", "goal_sentence_guard", "dispatch_halt",
                    "pre_model_stop", "gate_refusal", "native_eval_generation_error"],
     }))
 

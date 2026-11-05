@@ -1,18 +1,18 @@
 {
+  "schema": "e140b-package-manifest-v1",
   "files": {
     "SOURCE_HOOK_DIFF.patch": "422b4d20420d9b5663614f52f717054f5704cdc8ad35831873c9c531dee7530d",
     "adapter.py": "90dc58922f58dc33f3d6c6ae6d2557a4e57c57b535b57e51e97abb1678bf5ebd",
-    "launcher.py": "e406995444bc2ef996571830a89bc644eddc9030116ce4f9b3ed04da41243234",
+    "launcher.py": "2599f49267350b12acd353633f8f833533e5d465f556bd9c4d59f3393c808fbd",
     "preflight.py": "d0a51a3d038d3f25d1fe56c13a46fbc0436a2a131739d916042426c226bf7381",
-    "source_hooks.py": "5a9c42d69de20b517e099134a13ea9faefa5b90916a7cde766bcef4c2e81f4a5",
+    "source_hooks.py": "695e43ec4fcda793a91c4fe1cd63d38fe8e91828be346d97d75f8f816786e15d",
     "stimulus/files/eligible_random.py": "9a481fe66c96915169acbfe0c9dfe3c2c6bd64040213add97b82ec9fa60548f0",
     "stimulus/files/mask_covariate_balance.py": "94410b76f6cd6d0577fd88893c1662467f82482f480d0c468356b3ae488e807c",
     "stimulus/files/mask_loss.py": "00575c024af663751b450415026902c6e6f496660adf95c6effad85911c889a7",
     "stimulus/manifest.json": "02e41fdeb947f1302d8ab4eb015ae32c7ca0cef821a9ef65c0208208bdf595b3",
     "test_adapter.py": "a9c7e352d5ce6e96e8d1708873cd9e082a590592b60a45e2eb02f981a69e4082",
-    "test_consumer.py": "fa4c509c98469b294969748388d9ba72771404e2af4d2dcaf10ce1a8c2fa69ca",
-    "test_failures.py": "64b3d459e8b6ecc7b33c90a81d21c2a2c0a4cf441f0fb23d89be74914467d4b9"
+    "test_consumer.py": "df6f64f1e73cc51edd73e5020e6375cbbcde7c9e3947fe1b7b666ec85e47379d",
+    "test_failures.py": "bb058b102e7c95f55d15018a72297c8804bad19d0a73adaffd35e873b3394532"
   },
-  "package_digest_sha256": "e1929ba923d9867f0235ac021e4628b5666f5e0329e3a4122d1ce1d053b75828",
-  "schema": "e130-batch02-package-manifest-v1"
+  "package_digest_sha256": "c761f5aee63fd14ffdf7d48e653851a14aa1a7398fc2a691220e3b1cdb7f4247"
 }

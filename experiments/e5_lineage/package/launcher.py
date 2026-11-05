@@ -1,4 +1,4 @@
-"""Prepare and run one isolated E130 attempt through pinned source E5/Inspect.
+"""Prepare and run one isolated E140b attempt through pinned source E5/Inspect.
 
 `prepare` is offline. `run` invokes the B provider and requires Captain Ursa's
 separate package release. Each completed B session blocks at a file gate until
@@ -115,8 +115,8 @@ def _extract_initial_w2s(destination: Path, commit: str) -> None:
 
 def prepare(attempt: Path, package: Path, run: str) -> dict[str, Any]:
     """Freeze a new package and clean W2S tree without a model call."""
-    if run not in {"run005", "run006", "run007", "run008"}:
-        raise ValueError("run must be one of the four authorized E130 batch02 runs")
+    if run not in {f"run{i:03d}" for i in range(1, 21)}:
+        raise ValueError("run must be one of the twenty authorized E140b runs")
     package = package.resolve(strict=True)
     baseline = verify_source_baseline(AUTHOR, W2S_SOURCE, SOURCE_PACKAGE)
     load_manifest(package / "stimulus/manifest.json")
@@ -137,7 +137,7 @@ def prepare(attempt: Path, package: Path, run: str) -> dict[str, Any]:
     _extract_initial_w2s(attempt / "w2s", manifest["w2s_commit"])
     (attempt / "logs").mkdir()
     receipt = {
-        "status": "prepared_no_model_call", "experiment": "E130", "run": run,
+        "status": "prepared_no_model_call", "experiment": "E140b", "run": run,
         "attempt": str(attempt), "package_hashes": package_hashes,
         "initial_w2s_tree_sha256": tree_sha(attempt / "w2s"),
         "baseline": baseline, "stimulus_sha256": package_hashes["stimulus/manifest.json"],
@@ -181,9 +181,9 @@ def run_attempt(attempt: Path) -> dict[str, Any]:
         raise RuntimeError("run must execute this attempt's frozen package/launcher.py")
     receipt = json.loads((attempt / "prepare_receipt.json").read_text())
     if receipt.get("status") != "prepared_no_model_call" or receipt.get("attempt") != str(attempt):
-        raise ValueError("invalid E130 preparation receipt")
+        raise ValueError("invalid E140b preparation receipt")
     if _package_hashes(attempt / "package") != receipt["package_hashes"]:
-        raise ValueError("frozen E130 package hash mismatch")
+        raise ValueError("frozen E140b package hash mismatch")
     if (attempt / "launch_intent.json").exists() or (attempt / "run_receipt.json").exists():
         raise FileExistsError("attempt already launched")
     if list((attempt / "logs").glob("*.eval")):
@@ -282,8 +282,8 @@ def run_attempt(attempt: Path) -> dict[str, Any]:
     })
     task = Task(
         dataset=dataset, solver=solver, scorer=[], epochs=1,
-        name="e130-fixed-a-fresh-b", metadata={
-            "experiment": "E130", "run": receipt["run"],
+        name="e140b-fixed-a-fresh-b", metadata={
+            "experiment": "E140b", "run": receipt["run"],
             "source_commit": baseline["provenance"]["source_commit"],
             "model_b": manifest["model_b"], "max_b_sessions": 50,
             "source_solver": "source-derived B-only adapter; see package/source_hooks.py",
